@@ -2,8 +2,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from django.core.mail import send_mail
-from .forms import EmailPostForm
-from .models import Post
+
+from .models import Post, Comment
+from .forms import EmailPostForm, CommentForm
 
 # Create your views here.
 """ Function-based View of Post List
@@ -38,7 +39,26 @@ def post_detail(request, year, month, day, post):
         publish__month = month,
         publish__day = day
     )
-    return render(request, 'blog/post/detail.html', {'post': post})
+    # Using Comment model's [related_name='comments'] to extract all relevant comments
+    comments = post.comments.filter(active=True)
+    new_comment = None
+
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            # Create a new Comment object, but don't save it to the database yet
+            new_comment = comment_form.save(commit=False)
+            new_comment.post = post # Assign the current post to the comment
+            new_comment.save() # Save the comment to the database
+    else:
+        # Displays a new instance of an empty form (request method is GET)
+        comment_form = CommentForm()
+
+    return render(
+        request, 
+        'blog/post/detail.html', 
+        {'post': post, 'comments': comments, 'new_comment': new_comment, 'comment_form': comment_form}
+    )
 
 def post_share(request, post_id):
     post = get_object_or_404(Post, id=post_id, status='published')
@@ -46,17 +66,20 @@ def post_share(request, post_id):
 
     if request.method == 'POST':
         # A filled form is submitted, which needs to be processed
-        form = EmailPostForm(request.POST)
+        form = EmailPostForm(data=request.POST)
         if form.is_valid():
             # Sends an e-mail, if the form is valid
             # If the form is invalid, then the template is loaded again using render()
             cd = form.cleaned_data # Creates a dictionary of form fields and its values 
+
             post_url = request.build_absolute_uri(post.get_absolute_url())
             subject = f"{cd['name']} recommends you read {post.title}"
             message = f"Read {post.title} at {post_url}\n\n{cd['name']}\'s comments: {cd['comments']}"
+            
             send_mail(subject, message, 'somedummyid@gmail.com', [cd['to']])
             sent = True
     else:
-        # Displays a new instance of an empty form
+        # Displays a new instance of an empty form (request method is GET)
         form = EmailPostForm()
+
     return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
