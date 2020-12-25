@@ -3,13 +3,20 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from django.core.mail import send_mail
 
+from taggit.models import Tag
+
 from .models import Post, Comment
 from .forms import EmailPostForm, CommentForm
 
-# Create your views here.
-""" Function-based View of Post List
-def post_list(request):
+# Function-based View of Post List
+def post_list(request, tag_slug=None):
+    tag = None
     posts = Post.published.all()
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = posts.filter(tags__in=[tag])
+
     paginator = Paginator(posts, 5)
     curr_page = request.GET.get('page') # Used to retrieve the current page number
     
@@ -21,14 +28,15 @@ def post_list(request):
         posts = paginator.page(paginator.num_pages) # Would return the last page of results
     
     return render(request, 'blog/post/list.html', {'posts': posts, 'page': curr_page})
-"""
 
+"""
 # Class-based View of Post List
 class PostListView(ListView):
     queryset = Post.published.all()
     context_object_name = 'posts'
     paginate_by = 5
     template_name = 'blog/post/list.html'
+"""
 
 def post_detail(request, year, month, day, post):
     post = get_object_or_404(

@@ -12,10 +12,12 @@
             {{ post.title }}
         </a>
     </h2>
+    <p class="tags"><b>Tags</b>: {{ post.tags.all|join:", " }}</p>
     <p class="date">
         Published on {{ post.publish }} by {{ post.author }}
     </p>
     {{ post.body|truncatewords:30|linebreaks }}
+    <hr>
     {% endfor %}
 
     <!-- When function-based view is used -->
