@@ -2,6 +2,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from django.core.mail import send_mail
+from django.db.models import Count
 
 from taggit.models import Tag
 
@@ -27,7 +28,7 @@ def post_list(request, tag_slug=None):
     except EmptyPage:
         posts = paginator.page(paginator.num_pages) # Would return the last page of results
     
-    return render(request, 'blog/post/list.html', {'posts': posts, 'page': curr_page})
+    return render(request, 'blog/post/list.html', {'posts': posts, 'page': curr_page, 'tag': tag})
 
 """
 # Class-based View of Post List
@@ -62,10 +63,17 @@ def post_detail(request, year, month, day, post):
         # Displays a new instance of an empty form (request method is GET)
         comment_form = CommentForm()
 
+    # List of similar posts (based on associated tags)
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags'))
+    similar_posts = similar_posts.order_by('-same_tags', '-publish')
+    similar_posts = similar_posts[:5] # Retrieving only the first 5 posts
     return render(
         request, 
         'blog/post/detail.html', 
-        {'post': post, 'comments': comments, 'new_comment': new_comment, 'comment_form': comment_form}
+        {'post': post, 'comments': comments, 'new_comment': new_comment, 
+        'comment_form': comment_form, 'similar_posts': similar_posts}
     )
 
 def post_share(request, post_id):

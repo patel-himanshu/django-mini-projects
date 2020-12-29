@@ -17,7 +17,18 @@
         </a>
     </p>
 
-    <hr><hr>
+    <hr>
+
+    <h2>Similar Posts:</h2>
+    {% for sim_post in similar_posts %}
+        <p>
+            <a href="{{ sim_post.get_absolut_url }}">{{ sim_post.title }}</a>
+        </p>
+    {% empty %}
+        <p>There are no similar posts.</p>
+    {% endfor %}
+    
+    <hr>
 
     {% with comments.count as total_comments %}
     <h2>
@@ -38,7 +49,6 @@
             <p>There are no comments in this post.</p>
     {% endfor %}
 
-    <hr>
     {% if new_comment %}
         <h2 style="border: solid 1px green;">Your comment has been added.</h2>
     {% else %}
