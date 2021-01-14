@@ -69,12 +69,11 @@ def post_detail(request, year, month, day, post):
     similar_posts = similar_posts.annotate(same_tags=Count('tags'))
     similar_posts = similar_posts.order_by('-same_tags', '-publish')
     similar_posts = similar_posts[:5] # Retrieving only the first 5 posts
-    return render(
-        request, 
-        'blog/post/detail.html', 
-        {'post': post, 'comments': comments, 'new_comment': new_comment, 
-        'comment_form': comment_form, 'similar_posts': similar_posts}
-    )
+
+    context = {'post': post, 'comments': comments, 'new_comment': new_comment, 
+    'comment_form': comment_form, 'similar_posts': similar_posts}
+    
+    return render(request, 'blog/post/detail.html', context)
 
 def post_share(request, post_id):
     post = get_object_or_404(Post, id=post_id, status='published')

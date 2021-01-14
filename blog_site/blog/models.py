@@ -13,7 +13,7 @@ class Post(models.Model):
     STATUS_CHOICES = (
         ('draft', 'Draft'),
         ('published', 'Published'),
-    ) # (A,B) = (value which will be stored in the model, value which will be displayed to the user as choice)
+    ) # (A,B) = (Value which will be stored in the model, Value which will be displayed to the user as choice)
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique_for_date='publish')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
