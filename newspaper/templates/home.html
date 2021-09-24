@@ -7,16 +7,29 @@
 {% block content %}
     {% if user.is_authenticated %}
       Hi {{ user.username }}!
-    <p><a href="{% url 'logout' %}">Log Out</a></p>
+    <!-- <p><a href="{% url 'logout' %}">Log Out</a></p> -->
     {% else %}
         <p>You are not logged in</p>
-        <a href="{% url 'login' %}">Log In</a> |
-        <a href="{% url 'signup' %}">Sign Up</a>
+        <!-- <a href="{% url 'login' %}">Log In</a> |
+        <a href="{% url 'signup' %}">Sign Up</a> -->
     {% endif %}
 
-    <hr />
-
-    <p>
-        <a href="{% url 'article_list' %}">Click here</a> to visit all the articles.
-    </p>
+    <div class="jumbotron mt-4">
+        <h1 class="display-4">
+            Newspaper App
+        </h1>
+        <p class="lead">
+            A Newspaper website built with Django.
+        </p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" href="{% url 'article_list' %}" role="button">
+                View All Articles
+            </a>
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary btn-lg" href="{% url 'article_new' %}" role="button">
+                    Write New Article
+                </a>
+                {% endif %}
+        </p>
+    </div>        
 {% endblock content %}
