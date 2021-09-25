@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
@@ -28,13 +28,21 @@ class ArticleCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ArticleEditView(LoginRequiredMixin, UpdateView):
+class ArticleEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Article
     fields = ('title', 'body')
     template_name = 'article_edit.html'
 
+    def test_func(self):
+        obj = self.get_object()
+        return self.request.user == obj.author
 
-class ArticleDeleteView(LoginRequiredMixin, DeleteView):
+
+class ArticleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Article
     template_name = 'article_delete.html'
     success_url = reverse_lazy('article_list')
+
+    def test_func(self):
+        obj = self.get_object()
+        return self.request.user == obj.author
