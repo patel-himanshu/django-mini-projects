@@ -40,9 +40,9 @@ INSTALLED_APPS = [
 
     'crispy_forms',
 
-    'account',
-    'article',
-    'page',
+    'accounts',
+    'articles',
+    'pages',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +125,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-AUTH_USER_MODEL = 'account.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
